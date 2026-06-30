@@ -5,7 +5,7 @@ import {
   BookOpen, Code, Briefcase, TrendingUp, Award, Users, Star, ChevronRight, Play, 
   Clock, User, Mail, Phone, MapPin, ArrowRight, Sparkles, Zap, Globe, Shield, 
   Quote, ThumbsUp, Target, ShoppingCart, Search, Menu, X, Heart, LogOut, Filter,
-  ChevronDown
+  ChevronDown, UserCircle, Settings, HelpCircle
 } from "lucide-react";
 import ProfileDropdown from "../utils/profiledropdown";
 
@@ -43,6 +43,40 @@ function Landing() {
   
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+
+  // 🔥 CHECK USER ON LOAD - FIXED
+  useEffect(() => {
+    const checkUser = () => {
+      const storedUser = localStorage.getItem('lms_user');
+      console.log("🔍 Checking localStorage for user:", storedUser);
+      
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          setUser(userData);
+          console.log("✅ User loaded:", userData);
+        } catch (e) {
+          console.error("Error parsing user data:", e);
+          localStorage.removeItem('lms_user');
+        }
+      } else {
+        console.log("❌ No user found in localStorage");
+        setUser(null);
+      }
+    };
+    
+    checkUser();
+
+    // Listen for storage changes (for multiple tabs)
+    const handleStorage = (e) => {
+      if (e.key === 'lms_user') {
+        checkUser();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   // Close dashboard dropdown when clicking outside
   useEffect(() => {
@@ -298,7 +332,7 @@ function Landing() {
     setExpandedCategory(null);
   };
 
-  // Cart functions
+  // 🔥 CART FUNCTIONS - FIXED to work with logged in user
   const updateCartCount = () => {
     const cart = localStorage.getItem("lms_cart");
     const items = cart ? JSON.parse(cart) : [];
@@ -306,12 +340,18 @@ function Landing() {
     setCartCount(count);
   };
 
+  // 🔥 ADD TO CART - CHECK USER FROM LOCALSTORAGE DIRECTLY
   const addToCart = (course) => {
-    if (!user) {
+    // Check user from localStorage directly
+    const storedUser = localStorage.getItem('lms_user');
+    const currentUser = storedUser ? JSON.parse(storedUser) : null;
+    
+    if (!currentUser) {
       alert("Please log in to add courses to cart.");
       navigate("/login");
       return;
     }
+    
     const cart = localStorage.getItem("lms_cart");
     let cartItems = cart ? JSON.parse(cart) : [];
     const existing = cartItems.find(item => item.id === course.id);
@@ -326,17 +366,6 @@ function Landing() {
   };
 
   // Auth, counters, slider, etc.
-  useEffect(() => {
-    const storedUser = localStorage.getItem('lms_user');
-    if (storedUser) setUser(JSON.parse(storedUser));
-    const handleStorage = () => {
-      const updated = localStorage.getItem('lms_user');
-      setUser(updated ? JSON.parse(updated) : null);
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
-
   useEffect(() => {
     const savedWishlist = localStorage.getItem('lms_wishlist');
     if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
@@ -355,11 +384,17 @@ function Landing() {
     }
   };
 
+  // 🔥 LOGOUT FUNCTION - Fixed to update state properly
   const handleLogout = () => {
     localStorage.removeItem('lms_user');
     localStorage.removeItem('lms_token');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('tempUserData');
     setUser(null);
+    setDashboardDropdownOpen(false);
+    setMobileMenuOpen(false);
     navigate('/');
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -440,9 +475,29 @@ function Landing() {
     if (!user) return null;
     if (user.role === 'admin') return 'Admin';
     if (user.role === 'instructor') return 'Instructor';
+    if (user.role === 'student' || user.role === 'user') return 'Student';
     return null;
   };
   const roleLabel = getRoleLabel();
+
+  // Get user initial for avatar
+  const getUserInitial = () => {
+    if (!user) return '';
+    if (user.firstName) return user.firstName.charAt(0).toUpperCase();
+    if (user.name) return user.name.charAt(0).toUpperCase();
+    if (user.email) return user.email.charAt(0).toUpperCase();
+    return 'U';
+  };
+
+  // Get user display name
+  const getUserName = () => {
+    if (!user) return '';
+    if (user.firstName && user.lastName) return `${user.firstName} ${user.lastName}`;
+    if (user.firstName) return user.firstName;
+    if (user.name) return user.name;
+    if (user.email) return user.email.split('@')[0];
+    return 'User';
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -473,7 +528,6 @@ function Landing() {
                 </button>
                 {coursesDropdownOpen && (
                   <div className="absolute left-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-fade-in">
-                    {/* Categories section */}
                     <div className="px-4 py-2">
                       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Categories</p>
                       <div className="grid grid-cols-2 gap-1">
@@ -496,7 +550,6 @@ function Landing() {
                       </div>
                     </div>
                     <div className="border-t border-gray-100 my-1"></div>
-                    {/* Popular courses section */}
                     <div className="px-4 py-2">
                       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Popular Courses</p>
                       <div className="space-y-1">
@@ -527,7 +580,6 @@ function Landing() {
                 )}
               </div>
 
-              {/* Other menu links */}
               <Link to="/certification" className="relative group text-gray-600 hover:text-orange-600 transition-colors duration-300">
                 Get Certified
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 group-hover:w-full transition-all duration-300 ease-out"></span>
@@ -573,15 +625,19 @@ function Landing() {
               </div>
 
               {/* Role label */}
-              {roleLabel && (
-                <span className="text-xs font-medium bg-gray-100 text-gray-700 px-3 py-1 rounded-full border border-gray-200 shadow-sm">
+              {roleLabel && user && (
+                <span className="text-xs font-medium bg-orange-100 text-orange-700 px-3 py-1 rounded-full border border-orange-200 shadow-sm">
                   {roleLabel}
                 </span>
               )}
 
               {user ? (
                 <>
-                  <button className="relative text-gray-600 hover:text-orange-600 transition-transform duration-200 hover:scale-110">
+                  {/* Wishlist Button */}
+                  <button 
+                    onClick={() => navigate("/student/wishlist")} 
+                    className="relative text-gray-600 hover:text-orange-600 transition-transform duration-200 hover:scale-110"
+                  >
                     <Heart size={20} className={wishlist.length > 0 ? "fill-red-500 text-red-500" : ""} />
                     {wishlist.length > 0 && (
                       <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
@@ -589,6 +645,8 @@ function Landing() {
                       </span>
                     )}
                   </button>
+                  
+                  {/* Cart Button */}
                   <button onClick={() => navigate("/cart")} className="relative text-gray-600 hover:text-orange-600 transition-transform duration-200 hover:scale-110">
                     <ShoppingCart size={20} />
                     {cartCount > 0 && (
@@ -597,9 +655,12 @@ function Landing() {
                       </span>
                     )}
                   </button>
+
+                  {/* ✅ Profile Dropdown */}
                   <ProfileDropdown user={user} onLogout={handleLogout} />
                 </>
               ) : (
+                // 🔥 Show Login/Signup buttons only when NOT logged in
                 <div className="flex items-center gap-4">
                   <button onClick={() => navigate("/login")} className="text-gray-700 hover:text-orange-600 transition-colors duration-300 font-medium">Log in</button>
                   <button onClick={() => navigate("/register")} className="px-5 py-2 bg-orange-600 text-white rounded-full hover:bg-orange-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105">Sign up</button>
@@ -632,6 +693,20 @@ function Landing() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+
+              {/* 🔥 Mobile - Show user info if logged in */}
+              {user && (
+                <div className="flex items-center gap-3 py-2 border-b border-gray-100">
+                  <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white font-semibold">
+                    {getUserInitial()}
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-800">{getUserName()}</p>
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-col space-y-2">
                 {/* Mobile courses dropdown */}
                 <div className="relative">
@@ -705,7 +780,11 @@ function Landing() {
                     </div>
                   )}
                 </div>
-                {roleLabel && <span className="py-2 text-gray-700">Role: {roleLabel}</span>}
+
+                {roleLabel && user && (
+                  <span className="py-1 text-xs text-orange-700 bg-orange-100 px-2 rounded-full inline-block w-fit">Role: {roleLabel}</span>
+                )}
+
                 {user ? (
                   <>
                     <button onClick={() => navigate("/student/wishlist")} className="text-left py-2 text-gray-700 hover:text-orange-600">Wishlist</button>
@@ -725,10 +804,7 @@ function Landing() {
         </div>
       </nav>
 
-      {/* Hero Banner, Stats, Filters, Courses Grid, Popup, Features, Testimonials, CTA, Footer – identical to your original */}
-      {/* (I've kept the rest unchanged; the existing JSX continues below) */}
-
-      {/* Hero Banner with 6 slides */}
+      {/* Hero Banner */}
       <div className="relative w-full h-[500px] md:h-[600px] overflow-hidden rounded-2xl shadow-xl mt-20">
         <AnimatePresence initial={false} custom={direction}>
           <motion.div key={currentSlide} custom={direction} variants={sliderVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.5, ease: "easeInOut" }} className="absolute inset-0 w-full h-full">
@@ -979,7 +1055,7 @@ function Landing() {
         </div>
       </section>
 
-      {/* CTA Section (only for logged out) */}
+      {/* 🔥 CTA Section - Show only when NOT logged in */}
       {!user && (
         <section className="py-20 bg-orange-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -988,6 +1064,39 @@ function Landing() {
             <button onClick={() => navigate("/register")} className="px-8 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition inline-flex items-center gap-2 shadow-md">
               Get Started For Free <ArrowRight size={18} />
             </button>
+          </div>
+        </section>
+      )}
+
+      {/* 🔥 Welcome User Section - Show only when logged in */}
+      {user && (
+        <section className="py-12 bg-gradient-to-r from-orange-50 to-orange-100 border-y border-orange-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                  {getUserInitial()}
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">Welcome back, {getUserName()}! 👋</h2>
+                  <p className="text-gray-600">Continue your learning journey with us.</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => navigate("/student/dashboard")} 
+                  className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition shadow-md"
+                >
+                  Go to Dashboard
+                </button>
+                <button 
+                  onClick={handleLogout} 
+                  className="px-6 py-2 border border-orange-600 text-orange-600 rounded-lg hover:bg-orange-50 transition"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
           </div>
         </section>
       )}

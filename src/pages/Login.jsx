@@ -62,11 +62,19 @@ function Login() {
         refreshToken: data.refreshToken,
       };
 
+      // ✅ Save user to localStorage
+      localStorage.setItem('lms_user', JSON.stringify(user));
+      
+      // ✅ Call login from AuthContext
       login(user);
 
-      const roleLower = user.role.toLowerCase();
-      const targetRole = roleLower === "user" ? "student" : roleLower;
-      navigate(`/${targetRole}/dashboard`);
+      // ✅ Redirect to Landing Page instead of Dashboard
+      setTimeout(() => {
+        navigate("/", { 
+          state: { message: "✅ Login successful! Welcome back." } 
+        });
+      }, 1000);
+      
     } catch (err) {
       setError(err.message || "Login failed. Please check your credentials.");
     } finally {
