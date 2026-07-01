@@ -14,8 +14,12 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   const token = localStorage.getItem("lms_token") || localStorage.getItem("access_token");
+  const storedUser = localStorage.getItem("lms_user");
+  const parsedStoredUser = storedUser ? JSON.parse(storedUser) : null;
+  const activeUser = user || parsedStoredUser;
+  const hasValidToken = Boolean(token) && !isTokenExpired(token);
 
-  if (!user || !token || isTokenExpired(token)) {
+  if (!activeUser && (!token || isTokenExpired(token))) {
     if (user || token) {
       logout();
     }
@@ -23,7 +27,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   // Normalize roles: map "user" to "student" in case backend uses "user"
-  const normalizedUserRole = user.role === "user" ? "student" : user.role;
+  const normalizedUserRole = activeUser?.role === "user" ? "student" : activeUser?.role;
   const normalizedAllowedRoles = allowedRoles.map((role) =>
     role === "user" ? "student" : role
   );

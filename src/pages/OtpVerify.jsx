@@ -138,6 +138,7 @@ function OtpVerify() {
 
       if (isRegistration) {
         // 🔥🔥🔥 REGISTRATION - SAVE USER TO LOCALSTORAGE 🔥🔥🔥
+        const accessToken = result.data?.accessToken || result.data?.token || "";
         const user = {
           id: result.data?.userId || result.data?.id || Date.now(),
           email: email,
@@ -145,12 +146,14 @@ function OtpVerify() {
           lastName: userData?.lastName || "",
           name: userData?.firstName ? `${userData.firstName} ${userData.lastName || ''}` : email.split('@')[0],
           role: "student",
-          token: result.data?.accessToken || "",
+          token: accessToken,
           refreshToken: result.data?.refreshToken || "",
         };
 
         // ✅ Save to localStorage - THIS IS THE KEY FIX
         localStorage.setItem('lms_user', JSON.stringify(user));
+        localStorage.setItem('lms_token', accessToken);
+        localStorage.setItem('access_token', accessToken);
         localStorage.removeItem("userEmail");
         localStorage.removeItem("tempUserData");
 
@@ -170,13 +173,17 @@ function OtpVerify() {
         // LOGIN - Login user and go to dashboard
         const { data } = result;
         if (data && data.accessToken && data.activeRole) {
+          const accessToken = data.accessToken || data.token || "";
           const user = {
             id: data.userId,
             email: email,
             role: data.activeRole,
-            token: data.accessToken,
+            token: accessToken,
             refreshToken: data.refreshToken,
           };
+          localStorage.setItem('lms_user', JSON.stringify(user));
+          localStorage.setItem('lms_token', accessToken);
+          localStorage.setItem('access_token', accessToken);
           login(user);
           const roleLower = user.role.toLowerCase();
           const targetRole = roleLower === "user" ? "student" : roleLower;

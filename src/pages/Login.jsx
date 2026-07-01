@@ -54,16 +54,24 @@ function Login() {
 
       const { data } = result;
 
+      const accessToken = data.accessToken || data.token;
+
+      if (!accessToken) {
+        throw new Error("Login succeeded but no access token was returned.");
+      }
+
       const user = {
         id: data.userId,
         email: email,
         role: data.activeRole,
-        token: data.accessToken,
+        token: accessToken,
         refreshToken: data.refreshToken,
       };
 
-      // ✅ Save user to localStorage
+      // ✅ Save session data to localStorage
       localStorage.setItem('lms_user', JSON.stringify(user));
+      localStorage.setItem('lms_token', accessToken);
+      localStorage.setItem('access_token', accessToken);
       
       // ✅ Call login from AuthContext
       login(user);

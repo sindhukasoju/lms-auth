@@ -20,6 +20,8 @@ import Wishlist from "./pages/student/Wishlist";
 import Orders from "./pages/student/Orders";
 import Checkout from "./pages/student/Checkout";
 import Cart from "./pages/student/Cart";
+import Certifications from "./pages/student/Certifications"; // ✅ Added
+import Subscription from "./pages/student/Subscription"; // ✅ Added
 
 // Instructor Pages
 import InstructorDashboard from "./pages/instructor/InstructorDashboard";
@@ -32,7 +34,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import ManageUsers from "./pages/admin/Users";
 import ManageCourses from "./pages/admin/Courses";
 import Instructors from "./pages/admin/Instructors";
-import AdminOrders from "./pages/admin/Orders";   // ✅ Fixed: no "as" syntax
+import AdminOrders from "./pages/admin/Orders";
 import Analytics from "./pages/admin/Analytics.jsx";
 import Certificates from "./pages/admin/Certificates";
 import Notifications from "./pages/admin/Notifications";
@@ -76,6 +78,8 @@ function App() {
             <Route path="/student/my-learning" element={<MyLearning />} />
             <Route path="/student/wishlist" element={<Wishlist />} />
             <Route path="/student/orders" element={<Orders />} />
+            <Route path="/student/certifications" element={<Certifications />} /> {/* ✅ Added */}
+            <Route path="/student/subscription" element={<Subscription />} /> {/* ✅ Added */}
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/cart" element={<Cart />} />
           </Route>

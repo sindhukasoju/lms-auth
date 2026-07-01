@@ -340,18 +340,8 @@ function Landing() {
     setCartCount(count);
   };
 
-  // 🔥 ADD TO CART - CHECK USER FROM LOCALSTORAGE DIRECTLY
+  // 🔥 ADD TO CART - WORKS FOR SIGNED-IN USERS WITHOUT FORCING LOGIN
   const addToCart = (course) => {
-    // Check user from localStorage directly
-    const storedUser = localStorage.getItem('lms_user');
-    const currentUser = storedUser ? JSON.parse(storedUser) : null;
-    
-    if (!currentUser) {
-      alert("Please log in to add courses to cart.");
-      navigate("/login");
-      return;
-    }
-    
     const cart = localStorage.getItem("lms_cart");
     let cartItems = cart ? JSON.parse(cart) : [];
     const existing = cartItems.find(item => item.id === course.id);
