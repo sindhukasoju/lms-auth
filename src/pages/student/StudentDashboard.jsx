@@ -16,8 +16,8 @@ const StudentDashboard = () => {
   };
 
   const tabs = [
-    { id: "dashboard",    label: "Dashboard",         icon: LayoutDashboard },
-    { id: "learning",     label: "My Learning",        icon: BookOpen },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "learning", label: "My Learning", icon: BookOpen },
     { id: "become-instructor", label: "Become an Instructor", icon: Star, highlight: true },
   ];
 
@@ -74,8 +74,8 @@ const StudentDashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
               {[
                 { label: "Enrolled Courses", value: "0", color: "from-purple-500 to-indigo-600", icon: "🎓" },
-                { label: "Completed",        value: "0", color: "from-green-400 to-emerald-600",  icon: "✅" },
-                { label: "Certificates",     value: "0", color: "from-orange-400 to-rose-500",    icon: "🏆" },
+                { label: "Completed", value: "0", color: "from-green-400 to-emerald-600", icon: "✅" },
+                { label: "Certificates", value: "0", color: "from-orange-400 to-rose-500", icon: "🏆" },
               ].map((s) => (
                 <div key={s.label} className={`bg-gradient-to-br ${s.color} rounded-2xl p-5 text-white shadow-lg`}>
                   <div className="text-3xl mb-2">{s.icon}</div>

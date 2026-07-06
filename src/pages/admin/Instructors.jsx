@@ -38,7 +38,9 @@ const Instructors = () => {
       await adminApi.approveInstructor(instructorId);
       setInstructors((prev) =>
         prev.map((inst) =>
-          inst.id === instructorId ? { ...inst, status: "approved", applicationStatus: "approved" } : inst
+          inst.application?.applicationId === instructorId 
+            ? { ...inst, application: { ...inst.application, status: "APPROVED" } } 
+            : inst
         )
       );
       toast.success("Instructor approved");
@@ -54,7 +56,9 @@ const Instructors = () => {
       await adminApi.rejectInstructor(instructorId);
       setInstructors((prev) =>
         prev.map((inst) =>
-          inst.id === instructorId ? { ...inst, status: "rejected", applicationStatus: "rejected" } : inst
+          inst.application?.applicationId === instructorId 
+            ? { ...inst, application: { ...inst.application, status: "REJECTED" } } 
+            : inst
         )
       );
       toast.success("Instructor rejected");
@@ -69,7 +73,7 @@ const Instructors = () => {
     try {
       // Assuming a delete endpoint exists, we can use axiosInstance if not in adminApi
       await axiosInstance.delete(`/admin/instructors/applications/${instructorId}`);
-      setInstructors((prev) => prev.filter((inst) => inst.id !== instructorId));
+      setInstructors((prev) => prev.filter((inst) => inst.application?.applicationId !== instructorId));
       toast.success("Instructor deleted permanently");
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || "Deletion failed");
@@ -94,52 +98,55 @@ const Instructors = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {instructors.map((instructor) => (
-                <tr key={instructor.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm font-medium">
-                    {instructor.name || instructor.user?.name || instructor.User?.name || instructor.user?.firstName || "Unknown"}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    {instructor.email || instructor.user?.email || instructor.User?.email || "Unknown"}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      (instructor.status || instructor.applicationStatus || "").toLowerCase() === "approved" ? "bg-green-100 text-green-700" :
-                      (instructor.status || instructor.applicationStatus || "").toLowerCase() === "rejected" ? "bg-red-100 text-red-700" :
-                      "bg-yellow-100 text-yellow-700"
-                    }`}>
-                      {instructor.status || instructor.applicationStatus || "pending"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right space-x-2">
-                    {instructor.status !== "approved" && (
+              {instructors.map((instructor) => {
+                const appId = instructor.application?.applicationId;
+                const status = instructor.application?.status || "PENDING";
+                const email = instructor.user?.email || "Unknown";
+                const name = instructor.user?.name || instructor.user?.firstName || (email !== "Unknown" ? email.split("@")[0] : "Unknown");
+                
+                return (
+                  <tr key={appId || Math.random()} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 text-sm font-medium">{name}</td>
+                    <td className="px-6 py-4 text-sm">{email}</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        status.toLowerCase() === "approved" ? "bg-green-100 text-green-700" :
+                        status.toLowerCase() === "rejected" ? "bg-red-100 text-red-700" :
+                        "bg-yellow-100 text-yellow-700"
+                      }`}>
+                        {status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right space-x-2">
+                      {status.toLowerCase() !== "approved" && (
+                        <button
+                          onClick={() => handleApprove(appId)}
+                          className="p-1 text-green-600 hover:bg-green-50 rounded transition"
+                          title="Approve"
+                        >
+                          <CheckCircle size={16} />
+                        </button>
+                      )}
+                      {status.toLowerCase() !== "rejected" && (
+                        <button
+                          onClick={() => handleReject(appId)}
+                          className="p-1 text-red-600 hover:bg-red-50 rounded transition"
+                          title="Reject"
+                        >
+                          <XCircle size={16} />
+                        </button>
+                      )}
                       <button
-                        onClick={() => handleApprove(instructor.id)}
-                        className="p-1 text-green-600 hover:bg-green-50 rounded transition"
-                        title="Approve"
+                        onClick={() => handleDelete(appId)}
+                        className="p-1 text-gray-400 hover:text-red-600 rounded transition"
+                        title="Delete"
                       >
-                        <CheckCircle size={16} />
+                        <Trash2 size={16} />
                       </button>
-                    )}
-                    {instructor.status !== "rejected" && (
-                      <button
-                        onClick={() => handleReject(instructor.id)}
-                        className="p-1 text-red-600 hover:bg-red-50 rounded transition"
-                        title="Reject"
-                      >
-                        <XCircle size={16} />
-                      </button>
-                    )}
-                    <button
-                      onClick={() => handleDelete(instructor.id)}
-                      className="p-1 text-gray-400 hover:text-red-600 rounded transition"
-                      title="Delete"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
