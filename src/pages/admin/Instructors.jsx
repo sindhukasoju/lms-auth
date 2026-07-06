@@ -38,7 +38,7 @@ const Instructors = () => {
       await adminApi.approveInstructor(instructorId);
       setInstructors((prev) =>
         prev.map((inst) =>
-          inst.id === instructorId ? { ...inst, status: "approved" } : inst
+          inst.id === instructorId ? { ...inst, status: "approved", applicationStatus: "approved" } : inst
         )
       );
       toast.success("Instructor approved");
@@ -54,7 +54,7 @@ const Instructors = () => {
       await adminApi.rejectInstructor(instructorId);
       setInstructors((prev) =>
         prev.map((inst) =>
-          inst.id === instructorId ? { ...inst, status: "rejected" } : inst
+          inst.id === instructorId ? { ...inst, status: "rejected", applicationStatus: "rejected" } : inst
         )
       );
       toast.success("Instructor rejected");
@@ -96,15 +96,19 @@ const Instructors = () => {
             <tbody className="divide-y divide-gray-200">
               {instructors.map((instructor) => (
                 <tr key={instructor.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm font-medium">{instructor.name}</td>
-                  <td className="px-6 py-4 text-sm">{instructor.email}</td>
+                  <td className="px-6 py-4 text-sm font-medium">
+                    {instructor.name || instructor.user?.name || instructor.User?.name || instructor.user?.firstName || "Unknown"}
+                  </td>
+                  <td className="px-6 py-4 text-sm">
+                    {instructor.email || instructor.user?.email || instructor.User?.email || "Unknown"}
+                  </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 text-xs rounded-full ${
-                      instructor.status === "approved" ? "bg-green-100 text-green-700" :
-                      instructor.status === "rejected" ? "bg-red-100 text-red-700" :
+                      (instructor.status || instructor.applicationStatus || "").toLowerCase() === "approved" ? "bg-green-100 text-green-700" :
+                      (instructor.status || instructor.applicationStatus || "").toLowerCase() === "rejected" ? "bg-red-100 text-red-700" :
                       "bg-yellow-100 text-yellow-700"
                     }`}>
-                      {instructor.status}
+                      {instructor.status || instructor.applicationStatus || "pending"}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right space-x-2">
