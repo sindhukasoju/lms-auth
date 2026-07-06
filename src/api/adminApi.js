@@ -45,19 +45,19 @@ export const adminApi = {
 
   // Get all instructors
   getInstructors: async (params = {}) => {
-    const response = await axiosInstance.get("/admin/instructors", { params });
+    const response = await axiosInstance.get("/admin/instructors/applications", { params });
     return response.data;
   },
 
   // Approve instructor request
   approveInstructor: async (instructorId) => {
-    const response = await axiosInstance.post(`/admin/instructors/${instructorId}/approve`);
+    const response = await axiosInstance.put(`/admin/instructors/applications/${instructorId}/approve`);
     return response.data;
   },
 
   // Reject instructor request
   rejectInstructor: async (instructorId) => {
-    const response = await axiosInstance.post(`/admin/instructors/${instructorId}/reject`);
+    const response = await axiosInstance.put(`/admin/instructors/applications/${instructorId}/reject`);
     return response.data;
   },
 

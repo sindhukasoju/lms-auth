@@ -4,10 +4,8 @@ import { motion } from "framer-motion";
 import { CheckCircle, XCircle, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
-const getAuthHeaders = () => ({
-  "Content-Type": "application/json",
-  Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-});
+import { adminApi } from "../../api/adminApi";
+import axiosInstance from "../../api/axiosInstance";
 
 const Instructors = () => {
   const [instructors, setInstructors] = useState([]);
@@ -18,15 +16,12 @@ const Instructors = () => {
   const fetchInstructors = async () => {
     setLoading(true);
     try {
-      const response = await fetch("https://iodine-pesticide-bulge.ngrok-free.dev/admin/instructors", {
-        headers: getAuthHeaders(),
-      });
-      if (!response.ok) throw new Error(await response.text());
-      const data = await response.json();
-      setInstructors(data.instructors || data);
+      const data = await adminApi.getInstructors();
+      setInstructors(data.instructors || data.data || data);
     } catch (err) {
-      setError(err.message);
-      toast.error(err.message);
+      const errMsg = err.response?.data?.message || err.message;
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }
@@ -40,11 +35,7 @@ const Instructors = () => {
   const handleApprove = async (instructorId) => {
     if (!window.confirm("Approve this instructor?")) return;
     try {
-      const response = await fetch(
-        `https://iodine-pesticide-bulge.ngrok-free.dev/admin/instructors/${instructorId}/approve`,
-        { method: "PUT", headers: getAuthHeaders() }
-      );
-      if (!response.ok) throw new Error(await response.text());
+      await adminApi.approveInstructor(instructorId);
       setInstructors((prev) =>
         prev.map((inst) =>
           inst.id === instructorId ? { ...inst, status: "approved" } : inst
@@ -52,7 +43,7 @@ const Instructors = () => {
       );
       toast.success("Instructor approved");
     } catch (err) {
-      toast.error(err.message || "Approval failed");
+      toast.error(err.response?.data?.message || err.message || "Approval failed");
     }
   };
 
@@ -60,11 +51,7 @@ const Instructors = () => {
   const handleReject = async (instructorId) => {
     if (!window.confirm("Reject this instructor?")) return;
     try {
-      const response = await fetch(
-        `https://iodine-pesticide-bulge.ngrok-free.dev/admin/instructors/${instructorId}/reject`,
-        { method: "PUT", headers: getAuthHeaders() }
-      );
-      if (!response.ok) throw new Error(await response.text());
+      await adminApi.rejectInstructor(instructorId);
       setInstructors((prev) =>
         prev.map((inst) =>
           inst.id === instructorId ? { ...inst, status: "rejected" } : inst
@@ -72,7 +59,7 @@ const Instructors = () => {
       );
       toast.success("Instructor rejected");
     } catch (err) {
-      toast.error(err.message || "Rejection failed");
+      toast.error(err.response?.data?.message || err.message || "Rejection failed");
     }
   };
 
@@ -80,15 +67,12 @@ const Instructors = () => {
   const handleDelete = async (instructorId) => {
     if (!window.confirm("Permanently delete this instructor? This action cannot be undone.")) return;
     try {
-      const response = await fetch(
-        `https://iodine-pesticide-bulge.ngrok-free.dev/admin/instructors/${instructorId}`,
-        { method: "DELETE", headers: getAuthHeaders() }
-      );
-      if (!response.ok) throw new Error(await response.text());
+      // Assuming a delete endpoint exists, we can use axiosInstance if not in adminApi
+      await axiosInstance.delete(`/admin/instructors/applications/${instructorId}`);
       setInstructors((prev) => prev.filter((inst) => inst.id !== instructorId));
       toast.success("Instructor deleted permanently");
     } catch (err) {
-      toast.error(err.message || "Deletion failed");
+      toast.error(err.response?.data?.message || err.message || "Deletion failed");
     }
   };
 
