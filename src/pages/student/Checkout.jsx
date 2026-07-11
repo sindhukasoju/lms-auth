@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
 import { createOrder } from "../../services/orderService";
-import { ShoppingCart, CreditCard, Truck, MapPin, CheckCircle, AlertCircle, ChevronRight } from "lucide-react";
+import { ShoppingCart, CreditCard, Truck, CheckCircle, AlertCircle, ChevronRight } from "lucide-react";
 
 const Checkout = () => {
   const { user } = useAuth();
@@ -22,15 +22,14 @@ const Checkout = () => {
   });
 
   useEffect(() => {
-    // Load cart from localStorage
     const storedCart = localStorage.getItem("lms_cart");
     if (storedCart) {
       const parsedCart = JSON.parse(storedCart);
       if (parsedCart.length === 0) {
-        // Empty cart, redirect back to cart page
         navigate("/cart");
+      } else {
+        setCart(parsedCart);
       }
-      setCart(parsedCart);
     } else {
       navigate("/cart");
     }
@@ -42,6 +41,13 @@ const Checkout = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Helper: save orders to localStorage (used as fallback or primary)
+  const saveOrdersToLocalStorage = (orders) => {
+    const existing = JSON.parse(localStorage.getItem("studentOrders") || "[]");
+    const updated = [...existing, ...orders];
+    localStorage.setItem("studentOrders", JSON.stringify(updated));
+  };
+
   const handlePlaceOrder = async () => {
     if (!formData.shippingAddress || !formData.city) {
       setError("Please fill in all required fields.");
@@ -51,16 +57,51 @@ const Checkout = () => {
     setLoading(true);
     setError("");
     try {
+      // Try real API first
       const fullAddress = `${formData.shippingAddress}, ${formData.city}, ${formData.postalCode}`;
-      const order = await createOrder(user.id, cart, fullAddress, formData.paymentMethod);
-      setSuccess(true);
-      // Clear cart after successful order
+      await createOrder(
+        user?.id,
+        cart,
+        fullAddress,
+        formData.paymentMethod,
+        formData.notes
+      );
+      // If API succeeds, we still want to save to localStorage for the MyOrders page
+      // (since MyOrders reads from localStorage)
+    } catch (err) {
+      console.warn("API order creation failed, using localStorage fallback:", err);
+    }
+
+    // Always save to localStorage in the format MyOrders expects
+    try {
+      const userEmail = user?.email || "guest@example.com";
+      const userName = user?.name || "Guest";
+      const today = new Date().toISOString().split("T")[0];
+
+      // Create an order for each course in the cart
+      const orders = cart.map((item, index) => ({
+        id: `ORD-${Date.now()}-${index + 1}`,
+        userEmail,
+        userName,
+        course: item.title,
+        amount: item.price * (item.quantity || 1),
+        date: today,
+        status: "pending", // or "completed" if payment is successful
+      }));
+
+      saveOrdersToLocalStorage(orders);
+
+      // Clear cart
       localStorage.removeItem("lms_cart");
+      window.dispatchEvent(new Event("cartUpdated"));
+
+      setSuccess(true);
       setTimeout(() => {
         navigate("/student/orders");
-      }, 2000);
+      }, 1500);
     } catch (err) {
-      setError(err.message || "Order failed. Please try again.");
+      setError("Failed to place order. Please try again.");
+      setLoading(false);
     } finally {
       setLoading(false);
     }

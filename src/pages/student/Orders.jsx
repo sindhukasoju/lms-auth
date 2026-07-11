@@ -1,21 +1,53 @@
 // src/pages/student/Orders.jsx
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useOrders } from "../../context/OrderContext";
-import OrderCard from "../../components/order/OrderCard";
 import { Package, RefreshCw } from "lucide-react";
+import OrderCard from "../../components/order/OrderCard";
 
 const Orders = () => {
-  const { orders, loading, loadUserOrders } = useOrders();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const handleRefresh = async () => {
+  // Load orders from localStorage
+  const loadOrders = () => {
+    const stored = localStorage.getItem("lms_orders");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        // Sort by newest first (by createdAt)
+        parsed.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setOrders(parsed);
+      } catch (e) {
+        console.error("Error parsing orders:", e);
+        setOrders([]);
+      }
+    } else {
+      setOrders([]);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadOrders();
+    // Listen for storage changes from other tabs
+    const handleStorage = (e) => {
+      if (e.key === "lms_orders") {
+        loadOrders();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+  const handleRefresh = () => {
     setRefreshing(true);
-    await loadUserOrders();
+    loadOrders();
     setTimeout(() => setRefreshing(false), 500);
   };
 
-  if (loading && !orders.length) {
+  // Loading state
+  if (loading) {
     return (
       <div className="p-6 text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
@@ -60,7 +92,8 @@ const Orders = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
             >
-              <OrderCard order={order} onCancel={() => loadUserOrders()} />
+              {/* Pass the order to OrderCard and a refresh callback if needed */}
+              <OrderCard order={order} onCancel={loadOrders} />
             </motion.div>
           ))}
         </div>

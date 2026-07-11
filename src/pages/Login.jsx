@@ -1,7 +1,21 @@
+// =========================================================
+// ✅ This page logs the user in via email/password.
+// After successful login, lms_user is stored in localStorage,
+// and the user is redirected to their dashboard.
+// The dashboard is NEVER shown before login.
+// =========================================================
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Smartphone, Shield, TrendingUp, Award, Users } from "lucide-react";
+import {
+  Mail, Lock, Eye, EyeOff, ArrowRight, Smartphone,
+  Shield, TrendingUp, Award, Users, Github
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+
+// ========== CONFIGURATION ==========
+const API_BASE_URL = "https://iodine-pesticide-bulge.ngrok-free.dev";
+// ===================================
 
 function Login() {
   const { login } = useAuth();
@@ -40,7 +54,7 @@ function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://iodine-pesticide-bulge.ngrok-free.dev/login/password", {
+      const response = await fetch(`${API_BASE_URL}/login/password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -247,6 +261,39 @@ function Login() {
                 <Smartphone size={20} className="text-purple-600 group-hover:scale-110 transition-transform" />
                 <span className="text-gray-700 font-medium">Login with OTP</span>
               </button>
+
+              {/* ========== Continue with Google / GitHub ========== */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-gray-500">Or continue with</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => window.location.href = `${API_BASE_URL}/auth/google`}
+                  className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-gray-700 font-medium"
+                >
+                  <img 
+                    src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+                    alt="Google" 
+                    className="w-5 h-5" 
+                  />
+                  Google
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.location.href = `${API_BASE_URL}/auth/github`}
+                  className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-gray-700 font-medium"
+                >
+                  <Github className="w-5 h-5" />
+                  GitHub
+                </button>
+              </div>
 
               <div className="mt-6 text-left">
                 <p className="text-sm text-gray-600">Don't have an account? <button onClick={() => navigate("/register")} className="text-purple-600 font-semibold hover:underline">Create Account</button></p>

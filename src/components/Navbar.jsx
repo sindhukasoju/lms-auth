@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Search,
@@ -6,11 +6,9 @@ import {
   Globe,
   Menu,
   X,
-  Heart,
-  User,
-  LogOut,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import ProfileDropdown from "./ProfileDropdown"; // 👈 import the component
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -87,17 +85,11 @@ const Navbar = () => {
             <span className="text-2xl font-bold text-purple-700">LearnMaster</span>
           </Link>
 
-          {/* Desktop Menu Items – simple links, no dropdowns */}
+          {/* Desktop Menu Items */}
           <div className="hidden md:flex items-center space-x-6 text-gray-700 font-medium">
-            <Link to="/courses" className="hover:text-purple-600">
-              Courses
-            </Link>
-            <Link to="/certification" className="hover:text-purple-600">
-              Get Certified
-            </Link>
-            <Link to="/subscription" className="hover:text-purple-600">
-              Subscribe
-            </Link>
+            <Link to="/courses" className="hover:text-purple-600">Find Courses</Link>
+            <Link to="/certification" className="hover:text-purple-600">Get Certified</Link>
+            <Link to="/subscription" className="hover:text-purple-600">Subscribe</Link>
           </div>
 
           {/* Centered Search Bar */}
@@ -118,7 +110,7 @@ const Navbar = () => {
               Instructor
             </button>
 
-            {/* Cart button */}
+            {/* Cart button (always visible) */}
             <button
               className="relative text-gray-600 hover:text-purple-600"
               onClick={() => navigate("/cart")}
@@ -132,32 +124,8 @@ const Navbar = () => {
             </button>
 
             {user ? (
-              <>
-                <button
-                  className="relative text-gray-600 hover:text-purple-600"
-                  onClick={() => navigate("/wishlist")}
-                >
-                  <Heart size={20} />
-                </button>
-                <div
-                  className="flex items-center gap-2 cursor-pointer"
-                  onClick={() => navigate("/student/dashboard")}
-                >
-                  {/* ✅ Profile icon now fully violet */}
-                  <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center">
-                    <User size={16} className="text-white" />
-                  </div>
-                  <span className="text-sm font-medium text-gray-700">
-                    {user.name || "Student"}
-                  </span>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="text-red-600 hover:text-red-700 text-sm font-medium"
-                >
-                  Logout
-                </button>
-              </>
+              // 👇 Use the ProfileDropdown component
+              <ProfileDropdown user={user} onLogout={handleLogout} />
             ) : (
               <>
                 <button className="text-gray-600 hover:text-purple-600">
@@ -205,7 +173,7 @@ const Navbar = () => {
             </div>
             <div className="flex flex-col space-y-2">
               <Link to="/courses" className="py-2 text-gray-700">
-                Courses
+                Find Courses
               </Link>
               <Link to="/certification" className="py-2 text-gray-700">
                 Get Certified
@@ -215,6 +183,7 @@ const Navbar = () => {
               </Link>
               <button className="text-left py-2 text-gray-700">Instructor</button>
 
+              {/* Mobile cart */}
               <button
                 onClick={() => navigate("/cart")}
                 className="text-left py-2 text-gray-700 flex items-center gap-2"
@@ -226,19 +195,64 @@ const Navbar = () => {
               {user ? (
                 <>
                   <button
-                    onClick={() => navigate("/wishlist")}
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      navigate("/student/profile");
+                    }}
+                    className="text-left py-2 text-gray-700"
+                  >
+                    My Profile
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      navigate("/wishlist");
+                    }}
                     className="text-left py-2 text-gray-700"
                   >
                     Wishlist
                   </button>
                   <button
-                    onClick={() => navigate("/student/dashboard")}
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      navigate("/student/learning");
+                    }}
                     className="text-left py-2 text-gray-700"
                   >
-                    Dashboard
+                    My Learning
                   </button>
                   <button
-                    onClick={handleLogout}
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      navigate("/orders");
+                    }}
+                    className="text-left py-2 text-gray-700"
+                  >
+                    My Orders
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      navigate("/certificates");
+                    }}
+                    className="text-left py-2 text-gray-700"
+                  >
+                    Certificates
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      navigate("/devices");
+                    }}
+                    className="text-left py-2 text-gray-700"
+                  >
+                    List Devices
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleLogout();
+                    }}
                     className="text-left py-2 text-red-600"
                   >
                     Logout

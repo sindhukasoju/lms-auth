@@ -1,6 +1,20 @@
+// ==========================================
+// ✅ This page only sends an OTP request.
+// It does NOT log the user in.
+// Dashboard is hidden until OTP is verified
+// and lms_user is saved in localStorage.
+// ==========================================
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, ArrowLeft, Send, Shield, Smartphone, AlertCircle, TrendingUp, Award, Users } from "lucide-react";
+import {
+  Mail, ArrowLeft, Send, Shield, Smartphone, AlertCircle,
+  TrendingUp, Award, Users, Github
+} from "lucide-react";
+
+// ========== CONFIGURATION ==========
+const API_BASE_URL = "https://iodine-pesticide-bulge.ngrok-free.dev";
+// ===================================
 
 function OtpLogin() {
   const navigate = useNavigate();
@@ -26,7 +40,7 @@ function OtpLogin() {
     setSuccess(false);
 
     try {
-      const response = await fetch("https://iodine-pesticide-bulge.ngrok-free.dev/login/otp/request", {
+      const response = await fetch(`${API_BASE_URL}/login/otp/request`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -52,15 +66,11 @@ function OtpLogin() {
 
   return (
     <div className="min-h-screen flex relative overflow-hidden bg-gray-50">
-      {/* Light gradient background */}
+      {/* Background decorations (unchanged) */}
       <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100"></div>
-      
-      {/* Light decorative circles */}
       <div className="absolute top-1/4 -left-48 w-96 h-96 bg-purple-100 rounded-full blur-3xl opacity-30 animate-pulse"></div>
       <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-indigo-100 rounded-full blur-3xl opacity-30 animate-pulse delay-1000"></div>
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-50 rounded-full blur-[120px] opacity-20"></div>
-      
-      {/* Floating particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <div key={i} className="absolute w-1 h-1 bg-purple-300/50 rounded-full animate-float" style={{
@@ -73,7 +83,7 @@ function OtpLogin() {
       </div>
 
       <div className="relative z-10 flex w-full">
-        {/* Left brand section */}
+        {/* Left brand section (unchanged) */}
         <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12">
           <div className="max-w-lg">
             <div className="mb-12">
@@ -190,6 +200,39 @@ function OtpLogin() {
                     <ArrowLeft size={14} /> Back to Login
                   </button>
                 </div>
+              </div>
+
+              {/* ========== Continue with Google / GitHub ========== */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-gray-500">Or continue with</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => window.location.href = `${API_BASE_URL}/auth/google`}
+                  className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-gray-700 font-medium"
+                >
+                  <img 
+                    src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+                    alt="Google" 
+                    className="w-5 h-5" 
+                  />
+                  Google
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.location.href = `${API_BASE_URL}/auth/github`}
+                  className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-gray-700 font-medium"
+                >
+                  <Github className="w-5 h-5" />
+                  GitHub
+                </button>
               </div>
 
               <div className="mt-6 text-center">

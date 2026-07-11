@@ -67,10 +67,10 @@ function ProfileDropdown({ user, onLogout }) {
       {/* Profile trigger button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-gray-200 hover:border-violet-300 hover:bg-violet-50 transition-all duration-200 shadow-sm hover:shadow-md group"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all duration-200 shadow-sm hover:shadow-md group"
       >
         <div className="relative">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-violet-500 to-violet-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm group-hover:scale-105 transition-transform duration-200">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm group-hover:scale-105 transition-transform duration-200">
             {getInitials()}
           </div>
           <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
@@ -93,7 +93,7 @@ function ProfileDropdown({ user, onLogout }) {
           <div className="px-4 py-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl z-10">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-r from-violet-500 to-violet-600 flex items-center justify-center text-white text-2xl font-bold shadow-md">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center text-white text-2xl font-bold shadow-md">
                   {getInitials()}
                 </div>
                 <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white"></div>
@@ -104,12 +104,12 @@ function ProfileDropdown({ user, onLogout }) {
                 </p>
                 <p className="text-sm text-gray-500 truncate">{user?.email}</p>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs font-medium bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-medium bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
                     Student
                   </span>
                   <button
-                    onClick={() => navigateTo("/profile")}
-                    className="text-xs text-violet-600 hover:text-violet-700 font-medium hover:underline flex items-center gap-1"
+                    onClick={() => navigateTo("/student/profile")}
+                    className="text-xs text-orange-600 hover:text-orange-700 font-medium hover:underline flex items-center gap-1"
                   >
                     <Edit size={12} /> View / Edit Profile
                   </button>
@@ -122,11 +122,11 @@ function ProfileDropdown({ user, onLogout }) {
           <div className="px-2 py-2">
             {/* My Profile */}
             <button
-              onClick={() => navigateTo("/profile")}
+              onClick={() => navigateTo("/student/profile")}
               className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors group"
             >
               <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-gray-100 flex items-center justify-center">
-                <UserCircle size={16} className="text-gray-500 group-hover:text-violet-500" />
+                <UserCircle size={16} className="text-gray-500 group-hover:text-orange-500" />
               </div>
               <span className="text-sm text-gray-600 group-hover:text-gray-800">My Profile</span>
             </button>
@@ -138,12 +138,12 @@ function ProfileDropdown({ user, onLogout }) {
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-gray-100 flex items-center justify-center">
-                  <Heart size={16} className="text-gray-500 group-hover:text-violet-500" />
+                  <Heart size={16} className="text-gray-500 group-hover:text-orange-500" />
                 </div>
                 <span className="text-sm text-gray-600 group-hover:text-gray-800">Wishlist</span>
               </div>
               {wishlistCount > 0 && (
-                <span className="text-xs font-semibold bg-violet-100 text-violet-600 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-semibold bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">
                   {wishlistCount}
                 </span>
               )}
@@ -155,40 +155,40 @@ function ProfileDropdown({ user, onLogout }) {
               className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors group"
             >
               <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-gray-100 flex items-center justify-center">
-                <BookOpen size={16} className="text-gray-500 group-hover:text-violet-500" />
+                <BookOpen size={16} className="text-gray-500 group-hover:text-orange-500" />
               </div>
               <span className="text-sm text-gray-600 group-hover:text-gray-800">My Learning</span>
             </button>
 
             {/* My Orders */}
             <button
-              onClick={() => navigateTo("/student/orders")}
+              onClick={() => navigateTo("/student/my-orders")}
               className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors group"
             >
               <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-gray-100 flex items-center justify-center">
-                <ShoppingBag size={16} className="text-gray-500 group-hover:text-violet-500" />
+                <ShoppingBag size={16} className="text-gray-500 group-hover:text-orange-500" />
               </div>
               <span className="text-sm text-gray-600 group-hover:text-gray-800">My Orders</span>
             </button>
 
             {/* Certificates */}
             <button
-              onClick={() => navigateTo("/certificates")}
+              onClick={() => navigateTo("/student/certificates")}
               className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors group"
             >
               <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-gray-100 flex items-center justify-center">
-                <Award size={16} className="text-gray-500 group-hover:text-violet-500" />
+                <Award size={16} className="text-gray-500 group-hover:text-orange-500" />
               </div>
               <span className="text-sm text-gray-600 group-hover:text-gray-800">Certificates</span>
             </button>
 
             {/* List Devices */}
             <button
-              onClick={() => navigateTo("/devices")}
+              onClick={() => navigateTo("/student/devices")}
               className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors group"
             >
               <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-gray-100 flex items-center justify-center">
-                <Monitor size={16} className="text-gray-500 group-hover:text-violet-500" />
+                <Monitor size={16} className="text-gray-500 group-hover:text-orange-500" />
               </div>
               <span className="text-sm text-gray-600 group-hover:text-gray-800">List Devices</span>
             </button>

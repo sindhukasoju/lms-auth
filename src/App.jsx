@@ -1,3 +1,4 @@
+// src/App.jsx
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -21,19 +22,26 @@ import Orders from "./pages/student/Orders";
 import Checkout from "./pages/student/Checkout";
 import Cart from "./pages/student/Cart";
 
+// Certification & Subscription
+import Certifications from "./pages/Certifications";
+import Subscription from "./pages/Subscription";
+
+// ✅ Import Courses page
+import Courses from "./pages/Courses";
+
 // Instructor Pages
 import InstructorDashboard from "./pages/instructor/InstructorDashboard";
 import CreateCourse from "./pages/instructor/CreateCourse";
 import InstructorCourses from "./pages/instructor/MyCourses";
 import InstructorAnalytics from "./pages/instructor/Analytics";
 
-// Existing Admin Pages
+// Admin Pages
 import AdminDashboard from "./pages/admin/Dashboard";
 import ManageUsers from "./pages/admin/Users";
 import ManageCourses from "./pages/admin/Courses";
 import Instructors from "./pages/admin/Instructors";
-import AdminOrders from "./pages/admin/Orders";   // ✅ Fixed: no "as" syntax
-import Analytics from "./pages/admin/Analytics.jsx";
+import AdminOrders from "./pages/admin/Orders";
+import Analytics from "./pages/admin/Analytics";
 import Certificates from "./pages/admin/Certificates";
 import Notifications from "./pages/admin/Notifications";
 import Moderation from "./pages/admin/Moderation";
@@ -43,14 +51,15 @@ import Settings from "./pages/admin/Settings";
 import Roles from "./pages/admin/Roles";
 import AIFeatures from "./pages/admin/AIFeatures";
 import Gamification from "./pages/admin/Gamification";
-
-// New Admin Pages
 import Payments from "./pages/admin/Payments";
 import Reviews from "./pages/admin/Reviews";
 import AdminProfile from "./pages/admin/Profile";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminRegister from "./pages/admin/AdminRegister";
 import OrderDetails from "./pages/admin/OrderDetails";
+
+// Generic MyProfile
+import MyProfile from "./pages/MyProfile";
 
 function App() {
   return (
@@ -65,10 +74,27 @@ function App() {
           <Route path="/reset-otp" element={<ResetOtp />} />
           <Route path="/otp-login" element={<OtpLogin />} />
           <Route path="/otp-verify" element={<OtpVerify />} />
+          <Route path="/cart" element={<Cart />} />
+
+          {/* ✅ Courses route - add here */}
+          <Route path="/courses" element={<Courses />} />
+
+          <Route path="/certification" element={<Certifications />} />
+          <Route path="/subscription" element={<Subscription />} />
 
           {/* Admin auth routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/register" element={<AdminRegister />} />
+
+          {/* Generic profile – all authenticated users */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute allowedRoles={["student", "instructor", "admin"]}>
+                <MyProfile />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Student routes */}
           <Route element={<ProtectedRoute allowedRoles={["student"]}><DashboardLayout /></ProtectedRoute>}>
@@ -77,7 +103,6 @@ function App() {
             <Route path="/student/wishlist" element={<Wishlist />} />
             <Route path="/student/orders" element={<Orders />} />
             <Route path="/checkout" element={<Checkout />} />
-            <Route path="/cart" element={<Cart />} />
           </Route>
 
           {/* Instructor routes */}
