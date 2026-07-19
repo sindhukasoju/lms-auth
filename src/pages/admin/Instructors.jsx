@@ -103,11 +103,10 @@ const Instructors = () => {
                     {instructor.email || instructor.user?.email || instructor.User?.email || "Unknown"}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      (instructor.status || instructor.applicationStatus || "").toLowerCase() === "approved" ? "bg-green-100 text-green-700" :
-                      (instructor.status || instructor.applicationStatus || "").toLowerCase() === "rejected" ? "bg-red-100 text-red-700" :
-                      "bg-yellow-100 text-yellow-700"
-                    }`}>
+                    <span className={`px-2 py-1 text-xs rounded-full ${(instructor.status || instructor.applicationStatus || "").toLowerCase() === "approved" ? "bg-green-100 text-green-700" :
+                        (instructor.status || instructor.applicationStatus || "").toLowerCase() === "rejected" ? "bg-red-100 text-red-700" :
+                          "bg-yellow-100 text-yellow-700"
+                      }`}>
                       {instructor.status || instructor.applicationStatus || "pending"}
                     </span>
                   </td>
