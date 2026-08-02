@@ -102,22 +102,14 @@ const Register = () => {
     formDataPhoto.append("profilePhoto", file);
 
     try {
-      // Replace with your actual upload API endpoint
-      const response = await fetch("https://iodine-pesticide-bulge.ngrok-free.dev/auth/upload/profile-photo", {
-        method: "POST",
-        body: formDataPhoto,
-      });
-
-      if (!response.ok) throw new Error("Upload failed");
-
-      const data = await response.json();
-      const uploadedUrl = data.photoUrl || data.url || data.filePath;
-      setPhotoUrl(uploadedUrl);
+      // Demo mode: simulate photo upload with local preview URL
+      await new Promise((res) => setTimeout(res, 800));
+      const localUrl = URL.createObjectURL(file);
+      setPhotoUrl(localUrl);
       setMessage("Photo uploaded successfully!");
       setMessageType("success");
       setTimeout(() => setMessage(""), 3000);
     } catch (error) {
-      console.error("Upload error:", error);
       setMessage("Failed to upload photo. Please try again.");
       setMessageType("error");
       setPhotoPreview(null);
@@ -184,23 +176,16 @@ const Register = () => {
     };
 
     try {
-      const response = await fetch("https://iodine-pesticide-bulge.ngrok-free.dev/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      // Demo mode: registration always succeeds
+      await new Promise((res) => setTimeout(res, 800));
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Registration failed. Please try again.");
-      }
+      // Store temp data for OTP verification step
+      localStorage.setItem("tempUserData", JSON.stringify(payload));
+      localStorage.setItem("userEmail", formData.email);
 
       setMessage("Registration Successful! Redirecting to login...");
       setMessageType("success");
-      
+
       setTimeout(() => {
         navigate("/login");
       }, 2000);

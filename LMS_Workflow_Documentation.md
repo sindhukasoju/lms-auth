@@ -18,6 +18,17 @@ The LMS supports the following primary user roles:
 
 ### 3.1. Guest (Public) Workflow
 Guests can browse public-facing pages and authenticate to gain access to role-specific features.
+
+```mermaid
+graph TD
+    A[Landing Page /] --> B{Authentication}
+    B -->|Has Account| C[Login]
+    B -->|New User| D[Register]
+    C -.-> E[OTP Login]
+    C -.-> F[Forgot Password]
+    F -.-> G[Reset OTP]
+```
+
 - **Landing Page (`/`)**: The main entry point showcasing the platform, featured courses, and calls to action.
 - **Authentication**:
   - **Login (`/login`)**: Standard email/password login.
@@ -31,6 +42,18 @@ Guests can browse public-facing pages and authenticate to gain access to role-sp
 
 ### 3.2. Student Workflow
 Students focus on discovering, purchasing, and consuming course content.
+
+```mermaid
+graph TD
+    A[Student Dashboard] --> B[My Learning]
+    A --> C[Wishlist]
+    A --> D[Discover Courses]
+    D --> E[Cart]
+    E --> F[Checkout]
+    F --> G[Orders]
+    G -.-> B
+```
+
 - **Dashboard (`/student/dashboard`)**: Overview of learning progress, recent activities, and recommendations.
 - **My Learning (`/student/my-learning`)**: Access to purchased and enrolled courses.
 - **Wishlist (`/student/wishlist`)**: Saved courses for future consideration.
@@ -41,6 +64,15 @@ Students focus on discovering, purchasing, and consuming course content.
 
 ### 3.3. Instructor Workflow
 Instructors can create and manage course content and view their performance.
+
+```mermaid
+graph TD
+    A[Instructor Dashboard] --> B[My Courses]
+    A --> C[Create Course]
+    A --> D[Analytics]
+    C -.->|Publish| B
+```
+
 - **Dashboard (`/instructor/dashboard`)**: Overview of sales, student enrollments, and course engagement.
 - **Course Management**:
   - **My Courses (`/instructor/my-courses`)**: List of all courses published or drafted by the instructor.
@@ -49,6 +81,16 @@ Instructors can create and manage course content and view their performance.
 
 ### 3.4. Administrator Workflow
 Admins have full control over the platform's operations, user management, and configuration.
+
+```mermaid
+graph TD
+    A[Admin Dashboard] --> B[Users & Instructors Mgmt]
+    A --> C[Courses & Moderation]
+    A --> D[Orders & Payments]
+    A --> E[Platform Settings & CMS]
+    A --> F[Analytics & Support]
+```
+
 - **Admin Authentication**:
   - `/admin/login`: Secure login portal for administrators.
   - `/admin/register`: Registration for new admin accounts (if enabled).

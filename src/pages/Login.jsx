@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Smartphone, Shield, TrendingUp, Award, Users } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { authService } from "../services/authService";
+import { DEMO_CREDENTIALS } from "../mock/mockData";
 
 function Login() {
   const { login } = useAuth();
@@ -26,8 +28,8 @@ function Login() {
       setError("Password is required");
       return false;
     }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+    if (password.length < 4) {
+      setError("Password must be at least 4 characters");
       return false;
     }
     return true;
@@ -40,44 +42,8 @@ function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://iodine-pesticide-bulge.ngrok-free.dev/login/password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.message || "Login failed. Please check your credentials.");
-      }
-
-      const { data } = result;
-
-      const rawRole = data.activeRole || "student";
-      let normalizedRole = typeof rawRole === "string" ? rawRole.toLowerCase() : "student";
-
-      if (normalizedRole === "main_admin" || normalizedRole === "admin") {
-        normalizedRole = "admin";
-      } else if (normalizedRole === "user" || normalizedRole === "student") {
-        normalizedRole = "student";
-      }
-
-      const user = {
-        id: data.userId,
-        email: email,
-        role: normalizedRole,
-        token: data.accessToken,
-        refreshToken: data.refreshToken,
-      };
-
-      // Store credentials in localStorage
-      localStorage.setItem("lms_token", data.accessToken);
-      localStorage.setItem("access_token", data.accessToken);
-      localStorage.setItem("lms_user", JSON.stringify(user));
-
+      const { user } = await authService.login(email, password);
       login(user);
-
       const roleLower = user.role.toLowerCase();
       const targetRole = roleLower === "user" ? "student" : roleLower;
       navigate(`/${targetRole}/dashboard`);
@@ -88,16 +54,32 @@ function Login() {
     }
   };
 
+  const handleDemoLogin = async (cred) => {
+    setEmail(cred.email);
+    setPassword(cred.password);
+    setError("");
+    setLoading(true);
+    try {
+      const { user } = await authService.login(cred.email, cred.password);
+      login(user);
+      navigate(`/${user.role}/dashboard`);
+    } catch (err) {
+      setError(err.message || "Demo login failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex relative overflow-hidden bg-gray-50">
       {/* Light gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100"></div>
-      
+
       {/* Light decorative circles */}
       <div className="absolute top-1/4 -left-48 w-96 h-96 bg-purple-100 rounded-full blur-3xl opacity-30 animate-pulse"></div>
       <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-indigo-100 rounded-full blur-3xl opacity-30 animate-pulse delay-1000"></div>
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-50 rounded-full blur-[120px] opacity-20"></div>
-      
+
       {/* Floating particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
@@ -120,9 +102,9 @@ function Login() {
                   <div className="absolute inset-0 bg-purple-200 blur-xl rounded-full"></div>
                   <div className="relative bg-gradient-to-r from-purple-500 to-indigo-600 p-3 rounded-2xl">
                     <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="1.5"/>
-                      <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="1.5"/>
-                      <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="1.5"/>
+                      <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="1.5" />
                     </svg>
                   </div>
                 </div>
@@ -167,6 +149,28 @@ function Login() {
                 </div>
                 <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
                 <p className="text-gray-500 text-sm">Sign in to continue your learning journey</p>
+              </div>
+
+              {/* Demo Credentials */}
+              <div className="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+                <p className="text-xs font-semibold text-indigo-700 mb-3 uppercase tracking-wide">🎭 Demo Credentials — Click to login instantly</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {DEMO_CREDENTIALS.map((cred) => (
+                    <button
+                      key={cred.role}
+                      type="button"
+                      onClick={() => handleDemoLogin(cred)}
+                      disabled={loading}
+                      className="flex flex-col items-center p-2 bg-white border border-indigo-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-400 transition-all text-center group"
+                    >
+                      <span className="text-lg mb-1">
+                        {cred.role === "Admin" ? "🛡️" : cred.role === "Instructor" ? "🎓" : "📚"}
+                      </span>
+                      <span className="text-xs font-semibold text-indigo-700">{cred.role}</span>
+                      <span className="text-[10px] text-gray-400 truncate w-full text-center">{cred.email}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {error && (
@@ -221,14 +225,14 @@ function Login() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full py-3.5 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden group ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-500/25'}`}
+                  className={`w-full py-3.5 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden group ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-500/25 text-white'}`}
                 >
                   {!loading && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>}
                   {loading ? (
                     <>
                       <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
                       Signing in...
                     </>
@@ -253,7 +257,7 @@ function Login() {
               </div>
 
               <div className="mt-6 text-center">
-                <div className="flex items-center justify-center gap-2 text-xs text-gray-400"><Shield size={12} /><span>256-bit encrypted • GDPR compliant</span></div>
+                <div className="flex items-center justify-center gap-2 text-xs text-gray-400"><Shield size={12} /><span>256-bit encrypted • Demo Mode Active</span></div>
               </div>
             </div>
           </div>

@@ -1,7 +1,25 @@
 import { useState } from "react";
-import { LayoutDashboard, BookOpen, Star } from "lucide-react";
+import { LayoutDashboard, BookOpen, Star, TrendingUp, Clock, Award } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import InstructorApplication from "./InstructorApplication";
+
+const ENROLLMENTS = [
+  {
+    id: "e1", courseId: "c1", title: "Complete React Masterclass", instructor: "David Lee",
+    progress: 65, thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=80",
+    lastAccessed: "2025-05-17", totalLessons: 32, completedLessons: 21
+  },
+  {
+    id: "e2", courseId: "c4", title: "Digital Marketing Mastery", instructor: "David Lee",
+    progress: 100, thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+    lastAccessed: "2025-05-20", totalLessons: 18, completedLessons: 18
+  },
+  {
+    id: "e3", courseId: "c2", title: "UI/UX Design Fundamentals", instructor: "Eva Green",
+    progress: 30, thumbnail: "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=800&q=80",
+    lastAccessed: "2025-05-10", totalLessons: 24, completedLessons: 7
+  },
+];
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -15,10 +33,13 @@ const StudentDashboard = () => {
     localStorage.setItem("instructor_application_status", status);
   };
 
+  const completed   = ENROLLMENTS.filter(e => e.progress === 100).length;
+  const certificates = completed; // one certificate per completed course
+
   const tabs = [
-    { id: "dashboard",    label: "Dashboard",         icon: LayoutDashboard },
-    { id: "learning",     label: "My Learning",        icon: BookOpen },
-    { id: "become-instructor", label: "Become an Instructor", icon: Star, highlight: true },
+    { id: "dashboard",         label: "Dashboard",           icon: LayoutDashboard },
+    { id: "learning",          label: "My Learning",         icon: BookOpen },
+    { id: "become-instructor", label: "Become an Instructor",icon: Star, highlight: true },
   ];
 
   return (
@@ -60,7 +81,7 @@ const StudentDashboard = () => {
       {/* Page Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
 
-        {/* ── Dashboard Tab ────────────────────────────────────────────── */}
+        {/* ── Dashboard Tab ─────────────────────────────────── */}
         {activeTab === "dashboard" && (
           <div>
             <div className="mb-8">
@@ -73,9 +94,9 @@ const StudentDashboard = () => {
             {/* Quick stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
               {[
-                { label: "Enrolled Courses", value: "0", color: "from-purple-500 to-indigo-600", icon: "🎓" },
-                { label: "Completed",        value: "0", color: "from-green-400 to-emerald-600",  icon: "✅" },
-                { label: "Certificates",     value: "0", color: "from-orange-400 to-rose-500",    icon: "🏆" },
+                { label: "Enrolled Courses", value: ENROLLMENTS.length, color: "from-purple-500 to-indigo-600", icon: "🎓" },
+                { label: "Completed",        value: completed,           color: "from-green-400 to-emerald-600",  icon: "✅" },
+                { label: "Certificates",     value: certificates,        color: "from-orange-400 to-rose-500",    icon: "🏆" },
               ].map((s) => (
                 <div key={s.label} className={`bg-gradient-to-br ${s.color} rounded-2xl p-5 text-white shadow-lg`}>
                   <div className="text-3xl mb-2">{s.icon}</div>
@@ -85,8 +106,57 @@ const StudentDashboard = () => {
               ))}
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 text-center shadow-sm">
-              <p className="text-gray-400 text-sm">No courses yet. Browse the catalog to get started!</p>
+            {/* Continue Learning */}
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">Continue Learning</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {ENROLLMENTS.filter(e => e.progress < 100).map(course => (
+                  <div key={course.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden">
+                    <div className="h-36 relative overflow-hidden">
+                      <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40" />
+                      <div className="absolute bottom-2 left-3 text-white text-xs flex items-center gap-1">
+                        <Clock size={12} /> Last: {course.lastAccessed}
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 text-sm line-clamp-1 mb-1">{course.title}</h3>
+                      <p className="text-xs text-gray-500 mb-3">by {course.instructor}</p>
+                      <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+                        <span>{course.completedLessons}/{course.totalLessons} lessons</span>
+                        <span className="font-semibold text-purple-600">{course.progress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-2">
+                        <div
+                          className="bg-gradient-to-r from-purple-500 to-indigo-600 h-2 rounded-full transition-all"
+                          style={{ width: `${course.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Completed course badge */}
+                {ENROLLMENTS.filter(e => e.progress === 100).map(course => (
+                  <div key={course.id} className="bg-white rounded-2xl border border-green-100 shadow-sm overflow-hidden">
+                    <div className="h-36 relative overflow-hidden">
+                      <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover opacity-80" />
+                      <div className="absolute inset-0 bg-green-900/30 flex items-center justify-center">
+                        <span className="text-4xl">✅</span>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 text-sm line-clamp-1 mb-1">{course.title}</h3>
+                      <p className="text-xs text-gray-500 mb-2">by {course.instructor}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Completed</span>
+                        <Award size={12} className="text-orange-500" />
+                        <span className="text-xs text-orange-600 font-medium">Certificate Earned</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Become Instructor CTA */}
@@ -122,18 +192,48 @@ const StudentDashboard = () => {
           </div>
         )}
 
-        {/* ── My Learning Tab ───────────────────────────────────────────── */}
+        {/* ── My Learning Tab ────────────────────────────────── */}
         {activeTab === "learning" && (
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-6">My Learning</h1>
-            <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center shadow-sm">
-              <div className="text-5xl mb-3">📚</div>
-              <p className="text-gray-500">Your enrolled courses will appear here.</p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {ENROLLMENTS.map(course => (
+                <div key={course.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden">
+                  <div className="h-40 relative overflow-hidden">
+                    <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40" />
+                    {course.progress === 100 && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-green-900/20">
+                        <span className="text-4xl">✅</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">{course.title}</h3>
+                    <p className="text-xs text-gray-500 mb-3">by {course.instructor}</p>
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+                      <span>{course.completedLessons}/{course.totalLessons} lessons</span>
+                      <span className={`font-bold ${course.progress === 100 ? "text-green-600" : "text-purple-600"}`}>{course.progress}%</span>
+                    </div>
+                    <div className="w-full bg-gray-100 rounded-full h-2 mb-3">
+                      <div
+                        className={`h-2 rounded-full ${course.progress === 100 ? "bg-green-500" : "bg-gradient-to-r from-purple-500 to-indigo-600"}`}
+                        style={{ width: `${course.progress}%` }}
+                      />
+                    </div>
+                    {course.progress === 100 && (
+                      <div className="flex items-center gap-1 text-xs text-orange-600 font-medium">
+                        <Award size={12} /> Certificate Available
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* ── Become Instructor Tab ─────────────────────────────────────── */}
+        {/* ── Become Instructor Tab ──────────────────────────── */}
         {activeTab === "become-instructor" && (
           <InstructorApplication
             onBack={() => setActiveTab("dashboard")}

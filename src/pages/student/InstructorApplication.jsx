@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
-const API_BASE_URL = "https://iodine-pesticide-bulge.ngrok-free.dev";
+// Demo mode: no real API calls
 
 // ─── Document field config ────────────────────────────────────────────────────
 const DOCUMENT_FIELDS = [
@@ -247,38 +247,10 @@ export default function InstructorApplication({ onBack, applicationStatus, onSta
     setShowConfirm(false);
 
     try {
-      const formData = new FormData();
-      formData.append("email", user?.email || "");
-      formData.append("contentType", info.contentType);
-      formData.append("specialization", info.specialization);
-      formData.append("experience", info.experience);
-      formData.append("bio", info.bio);
-      formData.append("phone", info.phone);
-      formData.append("linkedIn", info.linkedIn);
-      formData.append("website", info.website);
-
-      Object.entries(files).forEach(([key, file]) => {
-        if (file) formData.append(key, file);
-      });
-
-      const token = localStorage.getItem("lms_token") || localStorage.getItem("access_token");
-      const response = await fetch(`${API_BASE_URL}/instructor/apply`, {
-        method: "POST",
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: formData,
-      });
-
-      // Treat 2xx or even errors gracefully in demo
-      if (response.ok || response.status === 201 || response.status === 200) {
-        onStatusChange("pending");
-      } else {
-        // Even if the API isn't live yet, store pending locally so user sees feedback
-        onStatusChange("pending");
-      }
+      // Demo mode: simulate submission delay, then mark as pending
+      await new Promise((res) => setTimeout(res, 1200));
+      onStatusChange("pending");
     } catch (err) {
-      // Network error — still simulate pending for demo
       onStatusChange("pending");
     } finally {
       setSubmitting(false);

@@ -1,4 +1,4 @@
-import { Menu, Bell, User } from "lucide-react";
+import { Menu, Bell, User, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import RoleSwitcher from "../ui/RoleSwitcher";
@@ -30,6 +30,15 @@ const TopNav = ({ setSidebarOpen, sidebarOpen }) => {
             onRoleChange={handleRoleChange}
           />
         )}
+        {/* Home / Landing page button */}
+        <button
+          onClick={() => navigate("/")}
+          title="Go to Landing Page"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition-all border border-gray-200 hover:border-orange-200"
+        >
+          <Home size={15} />
+          <span className="hidden sm:inline">Home</span>
+        </button>
         <Bell size={20} className="text-gray-500 hover:text-orange-600 cursor-pointer transition" />
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">

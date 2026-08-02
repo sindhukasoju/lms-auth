@@ -26,23 +26,13 @@ function OtpLogin() {
     setSuccess(false);
 
     try {
-      const response = await fetch("https://iodine-pesticide-bulge.ngrok-free.dev/login/otp/request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.message || "Failed to send OTP. Please try again.");
-      }
-
+      // Mock: simulate OTP send — any email works in demo mode
+      await new Promise((res) => setTimeout(res, 600));
       setSuccess(true);
       // Redirect to OTP verify page after a short delay
       setTimeout(() => {
         navigate("/otp-verify", { state: { email, from: "otp-login" } });
-      }, 2000);
+      }, 1500);
     } catch (err) {
       setError(err.message || "Failed to send OTP. Please try again.");
     } finally {

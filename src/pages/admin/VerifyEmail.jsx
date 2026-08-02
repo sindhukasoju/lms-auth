@@ -55,17 +55,8 @@ const VerifyEmail = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch("https://iodine-pesticide-bulge.ngrok-free.dev/auth/admin/verify-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp: otpValue }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Invalid OTP. Please try again.");
-      }
-
+      // Demo mode: accept any 6-digit OTP
+      await new Promise((res) => setTimeout(res, 600));
       setSuccess(true);
       setTimeout(() => {
         navigate("/admin/login");

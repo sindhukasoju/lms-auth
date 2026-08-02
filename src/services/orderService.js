@@ -1,5 +1,4 @@
-// src/services/orderService.js
-const API_BASE = "https://iodine-pesticide-bulge.ngrok-free.dev"; // Replace with your actual API
+// src/services/orderService.js — Demo mode: all operations use localStorage
 
 // Helper for localStorage (mock)
 const getOrders = () => {

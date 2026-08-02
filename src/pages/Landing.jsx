@@ -8,6 +8,7 @@ import {
   ChevronDown
 } from "lucide-react";
 import ProfileDropdown from "../utils/profiledropdown";
+import toast from "react-hot-toast";
 
 function Landing() {
   const navigate = useNavigate();
@@ -308,21 +309,23 @@ function Landing() {
 
   const addToCart = (course) => {
     if (!user) {
-      alert("Please log in to add courses to cart.");
-      navigate("/login");
+      toast.error("Please log in to add courses to cart.");
+      setTimeout(() => navigate("/login"), 1200);
       return;
     }
     const cart = localStorage.getItem("lms_cart");
     let cartItems = cart ? JSON.parse(cart) : [];
     const existing = cartItems.find(item => item.id === course.id);
     if (existing) {
-      existing.quantity = (existing.quantity || 1) + 1;
-    } else {
-      cartItems.push({ ...course, quantity: 1 });
+      toast(`"${course.title}" is already in your cart!`, { icon: "🛒" });
+      return;
     }
+    cartItems.push({ ...course, quantity: 1 });
     localStorage.setItem("lms_cart", JSON.stringify(cartItems));
     updateCartCount();
-    alert(`Added "${course.title}" to cart.`);
+    // Trigger sidebar badge sync
+    window.dispatchEvent(new Event("storage"));
+    toast.success(`Added "${course.title}" to cart!`);
   };
 
   // Auth, counters, slider, etc.
@@ -347,13 +350,29 @@ function Landing() {
     localStorage.setItem('lms_wishlist', JSON.stringify(newWishlist));
   };
 
-  const toggleWishlist = (courseId) => {
-    if (wishlist.includes(courseId)) {
-      saveWishlist(wishlist.filter(id => id !== courseId));
-    } else {
-      saveWishlist([...wishlist, courseId]);
+  // Store full course object so Wishlist page can display details
+  const toggleWishlist = (course) => {
+    if (!user) {
+      toast.error("Please log in to save courses to wishlist.");
+      setTimeout(() => navigate("/login"), 1200);
+      return;
     }
+    const courseObj = typeof course === "object" ? course : courses.find(c => c.id === course);
+    if (!courseObj) return;
+    const alreadyLiked = wishlist.some(c => c.id === courseObj.id);
+    if (alreadyLiked) {
+      saveWishlist(wishlist.filter(c => c.id !== courseObj.id));
+      toast("Removed from wishlist", { icon: "💔" });
+    } else {
+      saveWishlist([...wishlist, courseObj]);
+      toast.success("Added to wishlist! ❤️");
+    }
+    // Trigger sidebar badge sync
+    window.dispatchEvent(new Event("storage"));
   };
+
+  // Helper: check if a course is wishlisted (works with both old ID arrays and new object arrays)
+  const isWishlisted = (courseId) => wishlist.some(c => (c.id !== undefined ? c.id : c) === courseId);
 
   const handleLogout = () => {
     localStorage.removeItem('lms_user');
@@ -581,7 +600,7 @@ function Landing() {
 
               {user ? (
                 <>
-                  <button className="relative text-gray-600 hover:text-orange-600 transition-transform duration-200 hover:scale-110">
+                  <button onClick={() => navigate("/student/wishlist")} className="relative text-gray-600 hover:text-orange-600 transition-transform duration-200 hover:scale-110">
                     <Heart size={20} className={wishlist.length > 0 ? "fill-red-500 text-red-500" : ""} />
                     {wishlist.length > 0 && (
                       <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
@@ -911,8 +930,8 @@ function Landing() {
                   <h2 className="text-2xl font-bold text-gray-900">{selectedCourse.title}</h2>
                   <p className="text-gray-600 mt-1">by {selectedCourse.instructor}</p>
                 </div>
-                <button onClick={() => toggleWishlist(selectedCourse.id)} className="p-2 rounded-full hover:bg-gray-100 transition">
-                  <Heart size={28} className={wishlist.includes(selectedCourse.id) ? "fill-red-500 text-red-500" : "text-gray-400"} />
+                <button onClick={() => toggleWishlist(selectedCourse)} className="p-2 rounded-full hover:bg-gray-100 transition">
+                  <Heart size={28} className={isWishlisted(selectedCourse.id) ? "fill-red-500 text-red-500" : "text-gray-400"} />
                 </button>
               </div>
               <div className="flex items-center gap-4 mt-3 text-sm">

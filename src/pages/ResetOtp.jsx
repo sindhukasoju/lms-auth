@@ -123,25 +123,13 @@ function ResetOtp() {
     }
     setLoading(true);
     setTimeout(() => {
-      if (otpValue === "1234") {
-        setOtpVerified(true);
-        setError("");
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
-      } else {
-        const newAttempts = attempts + 1;
-        setAttempts(newAttempts);
-        if (newAttempts >= 3) {
-          setBlocked(true);
-          setError("⚠️ Too many wrong attempts. Please try again after 5 minutes.");
-        } else {
-          setError(`❌ Invalid OTP. ${3 - newAttempts} attempts remaining.`);
-        }
-        setOtp(["", "", "", ""]);
-        inputRefs.current[0]?.focus();
-      }
+      // Demo mode: accept any complete 4-digit OTP
+      setOtpVerified(true);
+      setError("");
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
       setLoading(false);
-    }, 1000);
+    }, 600);
   };
 
   // ✅ UPDATE PASSWORD API CALL
@@ -163,23 +151,8 @@ function ResetOtp() {
     setError("");
 
     try {
-      const response = await fetch("https://iodine-pesticide-bulge.ngrok-free.dev/auth/password/verify-otp", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          otp: otp.join(""),    // send the OTP entered
-          newPassword: password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Password reset failed. Please try again.");
-      }
+      // Demo mode: password update always succeeds
+      await new Promise((res) => setTimeout(res, 700));
 
       // Success
       setSuccess(true);

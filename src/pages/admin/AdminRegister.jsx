@@ -43,18 +43,8 @@ const AdminRegister = () => {
 
     setLoading(true);
     try {
-      const response = await fetch("https://iodine-pesticide-bulge.ngrok-free.dev/admin/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
-      }
-
+      // Demo mode: admin registration always succeeds
+      await new Promise((res) => setTimeout(res, 600));
       setSuccess("Admin registered successfully! Redirecting to login...");
       setTimeout(() => {
         navigate("/admin/login");

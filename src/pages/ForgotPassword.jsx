@@ -33,18 +33,8 @@ function ForgotPassword() {
     setSuccess(false);
 
     try {
-      const response = await fetch("https://iodine-pesticide-bulge.ngrok-free.dev/auth/password/forgot", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to send OTP. Please try again.");
-      }
-
+      // Demo mode: simulate OTP send
+      await new Promise((res) => setTimeout(res, 600));
       setSuccess(true);
       setTimeout(() => {
         setStep(2);
@@ -52,7 +42,7 @@ function ForgotPassword() {
         setError("");
       }, 1500);
     } catch (err) {
-      setError(err.message || "Something went wrong. Please check your connection.");
+      setError(err.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -74,18 +64,8 @@ function ForgotPassword() {
     setSuccess(false);
 
     try {
-      const response = await fetch("https://iodine-pesticide-bulge.ngrok-free.dev/auth/password/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Invalid OTP. Please try again.");
-      }
-
+      // Demo mode: accept any OTP
+      await new Promise((res) => setTimeout(res, 600));
       setSuccess(true);
       setTimeout(() => {
         setStep(3);
@@ -93,7 +73,7 @@ function ForgotPassword() {
         setError("");
       }, 1500);
     } catch (err) {
-      setError(err.message || "OTP verification failed. Please try again.");
+      setError(err.message || "OTP verification failed.");
     } finally {
       setLoading(false);
     }
@@ -119,25 +99,8 @@ function ForgotPassword() {
     setSuccess(false);
 
     try {
-      // The reset endpoint may also expect email and otp; adjust as needed.
-      // If your backend only needs newPassword and confirmPassword, remove email and otp.
-      const response = await fetch("https://iodine-pesticide-bulge.ngrok-free.dev/auth/password/reset", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          otp,
-          newPassword,
-          confirmPassword,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Password reset failed. Please try again.");
-      }
-
+      // Demo mode: password reset always succeeds
+      await new Promise((res) => setTimeout(res, 700));
       setSuccess(true);
       setTimeout(() => {
         navigate("/login");

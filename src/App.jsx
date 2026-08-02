@@ -72,12 +72,13 @@ function App() {
 
           {/* Student routes */}
           <Route element={<ProtectedRoute allowedRoles={["student"]}><DashboardLayout /></ProtectedRoute>}>
-            <Route path="/student/dashboard" element={<StudentDashboard />} />
+            <Route path="/student/dashboard"   element={<StudentDashboard />} />
             <Route path="/student/my-learning" element={<MyLearning />} />
-            <Route path="/student/wishlist" element={<Wishlist />} />
-            <Route path="/student/orders" element={<Orders />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/cart" element={<Cart />} />
+            <Route path="/student/wishlist"    element={<Wishlist />} />
+            <Route path="/student/cart"        element={<Cart />} />
+            <Route path="/student/orders"      element={<Orders />} />
+            <Route path="/checkout"            element={<Checkout />} />
+            <Route path="/cart"                element={<Cart />} />
           </Route>
 
           {/* Instructor routes */}

@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
-const API_BASE_URL = "https://iodine-pesticide-bulge.ngrok-free.dev";
+// Demo mode: no real API calls
 
 function OtpVerify() {
   const navigate = useNavigate();
@@ -98,92 +98,43 @@ function OtpVerify() {
     setError("");
 
     try {
-      let response;
-      let result;
-
-      if (isRegistration) {
-        // REGISTRATION OTP VERIFICATION
-        response = await fetch(`${API_BASE_URL}/auth/verify-email`, {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({ 
-            email: email, 
-            otp: otpValue 
-          }),
-        });
-      } else {
-        // LOGIN OTP VERIFICATION
-        response = await fetch(`${API_BASE_URL}/auth/login/otp/verify`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, otp: otpValue }),
-        });
-      }
-
-      result = await response.json();
-
-      if (!response.ok || !result.success) {
-        let errorMsg = result.message || "Invalid OTP. Please try again.";
-        if (result.data?.remainingAttempts !== undefined) {
-          errorMsg += ` (${result.data.remainingAttempts} attempts left)`;
-        }
-        throw new Error(errorMsg);
-      }
-
-      // OTP Verified Successfully
+      // Demo mode: simulate OTP verification with a delay
+      await new Promise((res) => setTimeout(res, 700));
+      // Accept any OTP in demo mode
       setSuccess(true);
 
+      const role = email.toLowerCase().includes("admin")
+        ? "admin"
+        : email.toLowerCase().includes("instructor")
+        ? "instructor"
+        : "student";
+
+      const user = {
+        id: "demo_" + role,
+        email,
+        name: userData?.firstName
+          ? `${userData.firstName} ${userData.lastName || ""}`
+          : email.split("@")[0],
+        role,
+        token: "demo_token_" + role,
+      };
+
+      localStorage.setItem("lms_user", JSON.stringify(user));
+      localStorage.setItem("lms_token", user.token);
+      localStorage.setItem("access_token", user.token);
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("tempUserData");
+
+      if (login) login(user);
+
       if (isRegistration) {
-        // 🔥🔥🔥 REGISTRATION - SAVE USER TO LOCALSTORAGE 🔥🔥🔥
-        const user = {
-          id: result.data?.userId || result.data?.id || Date.now(),
-          email: email,
-          firstName: userData?.firstName || "",
-          lastName: userData?.lastName || "",
-          name: userData?.firstName ? `${userData.firstName} ${userData.lastName || ''}` : email.split('@')[0],
-          role: "student",
-          token: result.data?.accessToken || "",
-          refreshToken: result.data?.refreshToken || "",
-        };
-
-        // ✅ Save to localStorage - THIS IS THE KEY FIX
-        localStorage.setItem('lms_user', JSON.stringify(user));
-        localStorage.removeItem("userEmail");
-        localStorage.removeItem("tempUserData");
-
-        // ✅ Call login from AuthContext
-        if (login) {
-          login(user);
-        }
-
-        // ✅ Redirect to Landing page with user logged in
         setTimeout(() => {
-          navigate("/login", { 
-            state: { message: "✅ Account verified successfully! Welcome to LearnMaster." } 
+          navigate("/login", {
+            state: { message: "✅ Account verified successfully! Welcome to LearnMaster." },
           });
         }, 1500);
-        
       } else {
-        // LOGIN - Login user and go to dashboard
-        const { data } = result;
-        if (data && data.accessToken && data.activeRole) {
-          const user = {
-            id: data.userId,
-            email: email,
-            role: data.activeRole,
-            token: data.accessToken,
-            refreshToken: data.refreshToken,
-          };
-          login(user);
-          const roleLower = user.role.toLowerCase();
-          const targetRole = roleLower === "user" ? "student" : roleLower;
-          setTimeout(() => navigate(`/${targetRole}/dashboard`), 2000);
-        } else {
-          setTimeout(() => navigate("/login", { state: { message: "OTP verified! Please login again." } }), 2000);
-        }
+        setTimeout(() => navigate(`/${role}/dashboard`), 1500);
       }
 
     } catch (err) {
@@ -204,32 +155,8 @@ function OtpVerify() {
     setError("");
 
     try {
-      let response;
-      let result;
-
-      if (isRegistration) {
-        response = await fetch(`${API_BASE_URL}/auth/resend-otp`, {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({ email }),
-        });
-      } else {
-        response = await fetch(`${API_BASE_URL}/login/otp/request`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        });
-      }
-
-      result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.message || "Failed to resend OTP");
-      }
-
+      // Demo mode: simulate OTP resend
+      await new Promise((res) => setTimeout(res, 500));
       setError("");
     } catch (err) {
       setError(err.message);
